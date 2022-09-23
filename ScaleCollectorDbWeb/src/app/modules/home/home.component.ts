@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '@auth0/auth0-angular';
+import { KitStatus, KitType, ModelKitsService } from 'src/api';
 
 @Component({
   selector: 'app-home',
@@ -8,14 +9,26 @@ import { AuthService } from '@auth0/auth0-angular';
   styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent implements OnInit {
-  weatherItems: any = [];
-  constructor(public auth: AuthService, private http: HttpClient) {}
+  constructor(public auth: AuthService, private modelkits: ModelKitsService) {}
 
-  ngOnInit(): void {
-    this.http
-      .get('http://localhost:5000/WeatherForecast')
-      .subscribe((reply) => {
-        this.weatherItems = reply;
+  ngOnInit(): void {}
+
+  test() {
+    this.modelkits
+      .apiModelKitsPost(
+        {
+          brandId: 1,
+          scaleId: 1,
+          status: KitStatus.Stash,
+          type: KitType.Kit,
+          title: 'test',
+          manufacturerArticleNumber: '22334',
+        },
+        undefined,
+        undefined
+      )
+      .subscribe((x) => {
+        console.log(JSON.stringify(x));
       });
   }
 }

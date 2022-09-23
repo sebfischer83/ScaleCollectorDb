@@ -19,6 +19,8 @@ import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { LandingPageComponent } from './pages/landing-page/landing-page.component';
 import { LandingPageContentComponent } from './pages/landing-page-content/landing-page-content.component';
 import { MainLayoutComponent } from './pages/main-layout/main-layout.component';
+import { AppInitializerProvider } from './app-initializer.service';
+import { ApiModule, BASE_PATH } from 'src/api';
 
 registerLocaleData(en);
 
@@ -40,9 +42,12 @@ registerLocaleData(en);
     IconsProviderModule,
     NzLayoutModule,
     NzMenuModule,
+    ApiModule,
   ],
   providers: [
+    AppInitializerProvider,
     { provide: HTTP_INTERCEPTORS, useClass: AuthHttpInterceptor, multi: true },
+    { provide: BASE_PATH, useValue: 'https://localhost:5001' },
     { provide: NZ_I18N, useValue: en_GB },
   ],
   bootstrap: [AppComponent],

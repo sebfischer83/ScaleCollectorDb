@@ -19,6 +19,9 @@ namespace ScaleCollectorDbServer.Services.UserResolver
             if (user == null)
                 return "";
 
+            if (user.Name == null)
+                return "";
+
             return user.Name.Split('|')[1];
         }
     }

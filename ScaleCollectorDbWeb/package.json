@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "generate-api-client": "api-client-generator -s ./swagger.json -o ./src/api -t all --verbose"
   },
   "private": true,
   "dependencies": {
@@ -20,6 +21,11 @@
     "@angular/router": "^14.2.0",
     "@auth0/auth0-angular": "^1.10.1",
     "@auth0/auth0-spa-js": "^1.22.4",
+    "@ngrx/effects": "^14.3.1",
+    "@ngrx/eslint-plugin": "^14.3.1",
+    "@ngrx/router-store": "^14.3.1",
+    "@ngrx/store": "^14.3.1",
+    "@ngrx/store-devtools": "^14.3.1",
     "ng-zorro-antd": "^14.0.0",
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",
@@ -29,7 +35,10 @@
     "@angular-devkit/build-angular": "^14.2.2",
     "@angular/cli": "~14.2.2",
     "@angular/compiler-cli": "^14.2.0",
+    "@angular/localize": "^14.2.1",
+    "@schematics/angular": "^14.2.3",
     "@types/jasmine": "~4.0.0",
+    "api-client-generator": "^5.0.0-beta.6",
     "jasmine-core": "~4.3.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.1.0",

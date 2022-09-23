@@ -3,8 +3,10 @@ using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Converters;
 using ScaleCollectorDbServer.Data;
 using ScaleCollectorDbServer.Services.UserResolver;
 using Serilog;
@@ -29,7 +31,13 @@ builder.Services.AddCors(options =>
 string connectionString = builder.Configuration["Scale:ConnectionString"];
 
 builder.Services.AddDbContext<ScaleDbContext>(options =>
-                options.UseSqlServer(connectionString));
+{
+    options.UseSqlServer(connectionString);
+    options.EnableDetailedErrors();
+    options.EnableSensitiveDataLogging();
+});
+
+builder.Services.AddAutoMapper(typeof(Program));
 
 string domain = $"https://{builder.Configuration["Auth0:Domain"]}/";
 builder.Services
@@ -56,30 +64,41 @@ builder.Services.AddControllers()
      .AddNewtonsoftJson(options =>
      {
          options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+         options.SerializerSettings.Converters.Add(new StringEnumConverter());
      });
 
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(s =>
+{
+
+});
+builder.Services.AddSwaggerGenNewtonsoftSupport();
 
 builder.Services.AddHealthChecks().AddSqlServer(connectionString, "SELECT 1");
 
-builder.Services.AddHealthChecksUI().AddInMemoryStorage();
+builder.Services.AddHealthChecksUI().AddInMemoryStorage(a =>
+{
+    a.EnableDetailedErrors(true);
+    a.EnableSensitiveDataLogging(true);
+});
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+builder.Services.AddControllers(
+    options => options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true);
 
-builder.Services.AddMiniProfiler(options =>
-{
-    options.RouteBasePath = "/mini-profiler-resources";
-    (options.Storage as MemoryCacheStorage).CacheDuration = TimeSpan.FromMinutes(60);
+//builder.Services.AddMiniProfiler(options =>
+//{
+//    options.RouteBasePath = "/mini-profiler-resources";
+//    (options.Storage as MemoryCacheStorage).CacheDuration = TimeSpan.FromMinutes(60);
 
-    options.ResultsAuthorize = request => true;
-    options.ResultsListAuthorize = request => true;
-    
-    options.TrackConnectionOpenClose = true; options.ColorScheme = StackExchange.Profiling.ColorScheme.Auto;
-}).AddEntityFramework();
+//    options.ResultsAuthorize = request => true;
+//    options.ResultsListAuthorize = request => true;
+
+//    options.TrackConnectionOpenClose = true; options.ColorScheme = StackExchange.Profiling.ColorScheme.Auto;
+//}).AddEntityFramework();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<UserResolverService>();
@@ -135,6 +154,8 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ScaleDbContext>();
     db.Database.Migrate();
+
+    DataSeeder.Seed(db);
 }
 
 app.Run();
